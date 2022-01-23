@@ -1,0 +1,23 @@
+{
+  "CN": "dmaf5.home",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+  {
+    "C": "US",
+    "L": "CT",
+    "O": "Barrios Nunez",
+    "OU": "Barrios Nunez Hosts",
+    "ST": "USA"
+  }
+  ],
+  "hosts": [
+    "dmaf5.home",
+    "localhost",
+    "dmaf5",
+    "192.168.1.23",
+    "192.168.1.26"
+  ]
+}

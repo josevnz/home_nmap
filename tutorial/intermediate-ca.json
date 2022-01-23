@@ -1,0 +1,19 @@
+{
+  "CN": "Barrios Nunez Intermediate CA",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C":  "US",
+      "L":  "CT",
+      "O":  "Barrios Nunez",
+      "OU": "Barrios Nunez Intermediate CA",
+      "ST": "USA"
+    }
+  ],
+  "ca": {
+    "expiry": "43830h"
+  }
+}
