@@ -1320,7 +1320,7 @@ We covered many topics and went from a very simple XML parser to a self document
 * Parse Nmap XML results file, and enrich it with security advisories from NIST
 * Enhance Nmap by mixing it with other scripts to automate its execution
 * Apply Nmap options to make our local network scan faster
-* Know what is pivoting and how you can use it to bypass firewall protections with the help of SSH and tcpproxy
+* Understand what is pivoting and how you can use it to bypass firewall protections with the help of SSH and tcpproxy
 * Write a REST-API on top of our original CLI script and secured it with SSL and Basic authentication
 * Add authorization to a web service using an API key
 * Use tshark to demonstrate how HTTP traffic can be captured, show the data payload
