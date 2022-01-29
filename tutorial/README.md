@@ -1,44 +1,42 @@
-# Enhancing NMAP with Python
+# Enhancing Nmap with Python
 
-Very few pieces of Open Source software generate [so much hype](https://nmap.org/movies/) than [Nmap](https://nmap.org/), it is one of those tools that packs so many useful features that it can help you to make your systems more secure by just running it with a few flags.
+Very few pieces of Open Source software generate [so much hype](https://nmap.org/movies/) than [Nmap](https://nmap.org/); it is one of those tools that packs so many useful features that it can help you to make your systems more secure by just running it with a few flags.
 
 > Nmap ("Network Mapper") is a free and open source (license) utility for network discovery and security auditing. Many systems and network administrators also find it useful for tasks such as network inventory, managing service upgrade schedules, and monitoring host or service uptime.
 
 It can also be used to bypass weak protections, to find hidden or mis-configured services or just to give you a better understanding how networks works.
 
-You can install the whole code from this tutorial if you follow the instructions as explained on the [GitHub page](http://README.md) file
-
-_NOTE_: I skipped some imports in the code snippets as they do not enhance the code demonstrations. To get the most accurate code, please do clone my public git repository and compare with the article.
-
 ## What you will learn from this article
 
-You can make nmap easier to use by wrapping it with Python or other scripting language; This will become a time saver if you use it for common or repetitive tasks or if you want to be less overwhelmed by the huge amount of options than this tool has to your disposal.
+You can make Nmap easier to use by wrapping it with Python or other scripting language; This will become a time saver if you use it for common or repetitive tasks or if you want to be less overwhelmed by the huge amount of options than this tool has to your disposal.
 
 We will cover the following:
 
 * How to write a small script that can scan all the hosts on the local network, making sure it runs with the proper privileges to identify the remote operating system
-* Enhance NMAP by correlating the CPE identifiers found during the service fingerprinting with security advisories from a public third party service.
+* Enhance Nmap by correlating the CPE identifiers found during the service fingerprinting with security advisories from a public third party service.
 * Convert our CLI scripts into a webservice that can be called from any machine in the local network. Will add some basic security.
 
-## What you should know before starting
+## Things you should know and do before starting
 
-Don't worry too much, I will guide you through the steps so this will be a fun experience and also the source code will be heavily documented. So this is what you will need:
+Don't worry too much, I will guide you through the steps so this will be a fun experience and also the source code is documented:
 
-* Familiar with basic network concepts like [IP address and CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
-* Able to write a program in a scripting language like [Python](https://www.python.org/). The code here is easy to follow.
-* A computer running Linux. *Disclaimer:* I used Fedora 35 for this Article and Python 3.9
-* The code from can be installed using a virtual environment. If you are not familiar with a virtual environment, you can read a small article I wrote about the topic: [Packaging applications to install on other machines with Python](https://www.redhat.com/sysadmin/packaging-applications-python).
+* Familiar with basic network concepts like [Classless inter-domain routing (CIDR)](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
+* Able to write a program in a scripting language like [Python](https://www.python.org/). I used Python 3.9 here.
+* A computer running Linux. I used Fedora 35.
+* The code from can be installed using a virtual environment. If you are not familiar with a virtual environment, you can read the following: [Packaging applications to install on other machines with Python](https://www.redhat.com/sysadmin/packaging-applications-python).
+* Install the whole code from this tutorial by following the instructions as explained on the main [README document](http://README.md) file
 
-One last thing before we start: Only run this examples against your local network. You can be curious, have fun and learn new things about existing tools without affecting others.
+Last two things:
+* I skipped __some__ imports in the code snippets as they do not enhance the code demonstrations. To get the most accurate code, please do clone the public git repository for this tutorial and open the source code.
+* _Only run this examples against your local network_. You can be curious, have fun and learn new things about existing tools without affecting others.
 
 Hacking is about learning!
 
-
 # Nmap 101: Identify all the public services in our network
 
-On this example we do not care about being 'stealth' or triggering an [IDS](https://en.wikipedia.org/wiki/Intrusion_detection_system) like [Suricata](https://suricata.io/) because our *port scanning activity*; The goal is to see what services are running in our network using a command line interface script (CLI).
+We do not care about being 'stealth' or triggering an [Intrusion Detection System (IDS)](https://en.wikipedia.org/wiki/Intrusion_detection_system) like [Suricata](https://suricata.io/) because our *port scanning activity*; The goal is to see what services are running in our network using a command line interface (CLI) script.
 
-Nmap requires elevated privileges to do the OS fingerprinting and scans using raw sockets. So you will need to run the commands as root or [SUDO](https://www.sudo.ws/) to elevate your permissions. A SUDO rule to do this is similar to this (file /etc/sudoers):
+Nmap requires elevated privileges to do the OS fingerprinting and scans using raw sockets. You will need to run the commands as root or [su "do" (SUDO)](https://www.sudo.ws/) to elevate your permissions. A SUDO rule to do this is similar to this (file /etc/sudoers):
 
 ```shell=
 ## Same thing without a password
@@ -62,7 +60,7 @@ User josevnz may run the following commands on dmaf5:
     (ALL) NOPASSWD: ALL
 ```
 
-Next will do a quick scan of our local network (in this example is 192.168.1.0/24); I used the _-v (verbose)_ flag to get some progress feedback while scanning for all the ports while also doing OS fingerprinting (-O). I saved the execution of the Nmap run to an XML file (-oX), which NMAP can use to resume execution if it gets interrupted (--resume):
+Next will do a quick scan of our local network (in this example is 192.168.1.0/24); I used the _-v (verbose)_ flag to get some progress feedback while scanning for all the ports while also doing OS fingerprinting (-O). I saved the execution of the Nmap run to an XML file (-oX), which Nmap can use to resume execution if it gets interrupted (--resume):
 
 ```shell=
 # In case the scan is interrupted: nmap --resume $HOME/home_scan.xml
@@ -166,7 +164,14 @@ class OutputParser:
         return nmap_args, parsed_data
 ```
 
-Once the data is collected we can create a nice table in the terminal with the help of [Rich](https://github.com/Textualize/rich):
+Once the data is collected we can create a nice table in the terminal with the help of [Rich](https://github.com/Textualize/rich).
+The table has the following columns:
+* Internet Protocol (IP) address
+* Protocol: On this script will be always Transfer Control Protocol (TCP)
+* Port ID: The port number where the service runs
+* Service: An networked service like Secure Shell (SSH)
+* Common Platform Enumeration ([CPE](https://nvd.nist.gov/products/cpe)): Is a structured naming scheme for information technology systems, software, and packages.
+* Advisories: Any vulnerability related to the CPE identified by Nmap. Will need to correlate those ourselves.
 
 ```python=
 def create_scan_table(*, cli: str) -> Table:
@@ -261,7 +266,7 @@ class NDISHtml:
         """
         Run a CPE search on the NDIS website. If the CPE has no version then skip the search
         as it will return too many false positives
-        @param cpe: CPE identifier coming from NMAP, like cpe:/a:openbsd:openssh:8.0
+        @param cpe: CPE identifier coming from Nmap, like cpe:/a:openbsd:openssh:8.0
         @return:
         """
         params = {
@@ -308,7 +313,7 @@ class NDISHtml:
         return self.parsed_results
 ```
 
-Then we correlate the NMAP CPES in the results with each one of the advisories:
+Then we correlate the Nmap CPES in the results with each one of the advisories:
 
 ```python
 from typing import Any
@@ -337,14 +342,14 @@ The new table speaks by itself:
 
 More complete, we can see now a few of our local services may have a vulnerability!. 
 
-Can we do better? It would be nice to be able to run Nmap directly from Python instead of parsing the results of a run, so let's code that. 
+Can we do better? For example, it would be nice to be able to run Nmap directly from Python instead of parsing the results of a run, so let's code that. 
 
-# Example #2: Writing a 'easy button' network scanner that uses NMAP
+# Example #2: Writing a 'easy button' network scanner that uses Nmap
 
 ## Wrapping Nmap with Python (subprocess.run)
 
-Nmap doesn't offer a formal API to interact with external programs, so we will rely on running it from Python and save the results into XML file; 
-we can then use the data any way we want (using python 'subprocess.run' in method 'scan' from our class NMapRunner):
+Nmap doesn't offer a formal API to interact with external programs, for that reason we will run it from Python and save the results into XML file; 
+we can then use the data any way we want (See the 'subprocess.run' call in method 'scan' from our class NmapRunner):
 
 ```python=
 class NMapRunner:
@@ -386,7 +391,7 @@ class NMapRunner:
         return args, data, completed.stderr
 ```
 
-_NOTE_: We used the named argument 'shell=False' to indicate we do not want to create a new shell when running our process. This will give us protection against [shell injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection) attacks.
+_Security note_: The named argument 'shell=False' tells that we do not want to create a new shell when running our process. This will provide protection against [shell injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection) attacks.
 
 ## Speeding up Nmap (remember all this flags in a single place)
 
@@ -415,13 +420,13 @@ NMAP_HOME_NETWORK_DEFAULT_FLAGS = {
 __NMAP__FLAGS__ = shlex.split(" ".join(NMAP_HOME_NETWORK_DEFAULT_FLAGS.keys()))
 ```
 
-Nmap documentation also suggests than you could also split total hostlist across several instances of Nmap (maybe no greater than the number of CPUs in the server running the tool) to increase parallelism, *but that doesn't come for free*; you will need to worry about issues like race conditions and synchronization in concurrent threads running nmap.
+Nmap documentation also suggests than you could also split total hostlist across several instances of Nmap (maybe no greater than the number of CPUs in the server running the tool) to increase parallelism, *but that doesn't come for free*; you will need to worry about issues like race conditions and synchronization in concurrent threads running Nmap.
 
 For now will keep it simple and will let Nmap take care of any optimizations by providing the flags showed above.
 
 ## Figure out the local networks on the machine where Nmap runs?
 
-Our python script can also check interfaces that are up, skip virtual interfaces and also skip the special loopback interface. Luckily the kernel publishes all the information we need on /proc/net/dev file:
+Our python script can also check interfaces that are up, skip virtual interfaces and skip the special loopback interface. Luckily the kernel publishes all the information we need on /proc/net/dev file:
 
 ```shell=
 (2600) [josevnz@dmaf5 2600]$ cat /proc/net/dev
@@ -432,10 +437,9 @@ enp2s0:       0       0    0    0    0     0          0         0        0      
   eno1: 1931173135 3908073    0    1    0     0          0    407486 274206691 3289566    0    0    0     0       0          0
 ```
 
-We can parse it like this (our class HostIface)
+We can parse it like this (class HostIface, method __refresh_interfaces__)
 
 ```python=
-
 class HostIface:    
     ...
     
@@ -462,10 +466,9 @@ class HostIface:
         return self.interfaces
 ```
 
-We can get the IP address and network masks of each local interface with [Socket programming](https://docs.python.org/3/howto/sockets.html), and then map each list of networks for these ip addresses + netmask combinations:
+The class HostIface gets the IP address and network masks of each local interface using [Socket programming](https://docs.python.org/3/howto/sockets.html), and then map each list of networks for these ip addresses + netmask combinations:
 
 ```python=
-
 SIOCGIFADDR = 0x8915
 SIOCGIFNETMASK = 0x891B
 
@@ -511,7 +514,7 @@ Creating now a new CLI for Nmap is straightforward; As a plus: The new frontend 
 This script can scan your home network to show information from all the connected devices.
 
 ## References:
-* [NMAP reference](https://nmap.org/book/man.html)
+* [Nmap reference](https://nmap.org/book/man.html)
 
 # Author
 Jose Vicente Nunez Zuleta (kodegeek.com@protonmail.com)
@@ -579,7 +582,7 @@ if __name__ == '__main__':
         'target',
         action='store',
         nargs='*',
-        help=(f"One or more targets, in NMAP format (scanme.homenmap.org, microsoft.com/24, 192.168.0.1; "
+        help=(f"One or more targets, in Nmap format (scanme.homenmap.org, microsoft.com/24, 192.168.0.1; "
               f"10.0.0-255.1-254). If not provided, then scan local networks")
     )
     args = arg_parser.parse_args()
@@ -637,13 +640,13 @@ if __name__ == '__main__':
 
 ```
 
-The code got a little more verbose due the argument parsing and UI handling but not too much.
+The code got a little more verbose due the argument parsing and the user interface updates handling, but not too much.
 
 Let's see an example against 127.0.0.1:
 
 ![](home_scan.png)
 
-If you are curious how the resulting report looks like:
+If you are curious how the resulting report looks like when passing the --report flag:
 
 ```json=
 {
@@ -678,16 +681,17 @@ If you are curious how the resulting report looks like:
 
 ## What about a GUI?
 
-Nmap has a very complete GUI called [Zenmap](https://nmap.org/zenmap/), but the whole point was to show you that you can write a nice Text UI in Python as well to display the results. You can achieve the same by using other popular frameworks like [Tkinter](https://docs.python.org/3/library/tkinter.html), which has incredibly detailed [documentation](https://tkdocs.com/tutorial/).
+Nmap has a very complete GUI called [Zenmap](https://nmap.org/zenmap/), but the whole point was to show you that you can write a nice Text UI in Python as well to display the results.
+
+You can achieve the same by using other popular frameworks like [Tkinter](https://docs.python.org/3/library/tkinter.html), which has incredibly detailed [documentation](https://tkdocs.com/tutorial/), for that reason will not expand this topic any further.
 
 Instead, let me show you how you can build a self-documenting REST-API for Nmap
 
-
 # Example #4: Let's make our home network scanner a web service
 
-Sometimes you cannot install NMAP because you lack the privileges to do so or the server has installation constraints (like space, memory).
+Sometimes you cannot install Nmap because you lack the elevated privileges to do so or the server has installation constraints (like space, memory).
 
-Or could be that you want to run the port scanner on a machine that is able to connect to network not directly accessible from the server you are currently logged in, bypassing network segregation imposed by firewall. In this case the webservice will act like a proxy to run our nmap command.
+Or could be that you want to run the port scanner on a machine that is able to connect to network not directly accessible from the server you are currently logged in, bypassing network segregation imposed by firewall. In this case the webservice will act like a proxy to run our Nmap command.
 
 This is also known as "**pivoting**"; it is a common technique used to bypass firewalls and proxy servers.
 
@@ -695,7 +699,7 @@ Let's take a *short detour* to talk more about pivoting with Nmap
 
 ### Can you run Nmap through a proxy?
 
-Yes, you can use [proxychains](https://github.com/haad/proxychains) to run nmap through a host with better connectivity or to bypass firewall restrictions:
+Yes, you can use [proxychains](https://github.com/haad/proxychains) to run Nmap through a host with better connectivity or to bypass firewall restrictions:
 
 ![](pivot.png)
 
@@ -733,10 +737,10 @@ socks5 192.168.1.11 9050
 CFG
 ```
 
-Finally, run nmap, using a tcp scan:
+Finally, run Nmap, using a tcp scan:
 
 ```shell=
-[josevnz@external docs]$ proxychains -q -f $HOME/proxychains.conf sudo nmap -sT 192.168.1.0/24
+[josevnz@external docs]$ proxychains -q -f $HOME/proxychains.conf sudo Nmap -sT 192.168.1.0/24
 Starting Nmap 7.80 ( https://nmap.org ) at 2021-12-30 16:06 EST
 ```
 
@@ -751,7 +755,7 @@ Now lets go back to code our [web service](https://en.wikipedia.org/wiki/Web_ser
 
 ## Nmap as a web service
 
-In any case, running Nmap as a service is not something new ([nmap-cgi](http://nmap-cgi.tuxfamily.org/)). Will make ours using [FastAPI](https://fastapi.tiangolo.com/).
+In any case, running Nmap as a service is not something new ([Nmap-cgi](http://nmap-cgi.tuxfamily.org/)). Will make ours using [FastAPI](https://fastapi.tiangolo.com/).
 
 I put together a web service that shows the current version and also the available network interfaces (home_nmap/main.py):
 
@@ -811,7 +815,7 @@ Now get the list of local networks calling the '/local_networks' endpoint:
   "192.168.1.0/24"
 ]
 ```
-Get automatic documentation (http://127.0.0.1:8000/docs#/):
+One nice thing about FastApi is that you get automatic documentation for your REST end points (http://127.0.0.1:8000/docs#/):
 
 ![](home_nmap_rest_documentation.png)
 
@@ -834,9 +838,9 @@ def scan(
 ):
     """
     Scan a target to get service information.
-    Note, FastAPI has a query validator, but I decided to use my own as I look for bad regexp:
+    Note, FastAPI has a query validator, but I decided to use my own as I look for bad targets:
     Query(None, min_length=MIN_LEN_TARGET, max_length=MAX_LEN_TARGET)
-    @param target: Override local network with custom targets, in NMAP format.
+    @param target: Override local network with custom targets, in Nmap format.
     @param full_advisories: If false, skip the summary information from the advisories
     @return: JSON containing the results of the scan
     """
@@ -902,7 +906,7 @@ from typing import Optional
 import shlex
 def target_validator(target: Optional[str]) -> str:
     """
-    Simple validator for NMAP target expressions
+    Simple validator for Nmap target expressions
     @param target: (scanme.homenmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254). None or empty are valid
     @return:
     """
@@ -919,7 +923,7 @@ def target_validator(target: Optional[str]) -> str:
         for arg in shlex.split(target):
             for regexp in regexp_list:
                 if re.search(regexp, arg):
-                    raise ValueError(f"You cannot override NMAP arguments: {arg}")
+                    raise ValueError(f"You cannot override Nmap arguments: {arg}")
     return target
 ```
 
@@ -936,11 +940,11 @@ Here is how the scan result of 2 machines in my local network look like (the web
 
 ## Is this webservice secure?
 
-We exposed our NMAP scanner *with no authorization* which means anyone who knows where the service is running can use it; this may not be a big issue on the local network but it would be good to control who uses our precious resources.
+We exposed our Nmap scanner *with no authorization* which means anyone who knows where the service is running can use it; this may not be a big issue on the local network but it would be good to control who uses our precious resources.
 
 ### Adding authentication and authorization
 
-Right now anyone can call our service. It is a good idea to control who can run NMAP against our home network
+Right now anyone can call our service. It is a good idea to control who can run Nmap against our home network
 
 There are [several ways](https://fastapi.tiangolo.com/tutorial/security/) to make sure our web service can only be used by authorized clients; One way to do it is by requesting a client to provide a key that is also known to the server; this is the approach will follow here.
 
@@ -987,7 +991,7 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 ```
 
-Now all the API that are protected by the key have a different decoration in the documentation (a lock next to them):
+Now all the API that are protected by the key have a different decoration in the documentation (a lock next to each end point):
 
 ![](documentation_shows_secured_endpoints.png)
 
@@ -1015,7 +1019,7 @@ Now let's try again but passing our secret api key:
 ["192.168.1.0/24"][josevnz@dmaf5 home_nmap]$
 ```
 
-Still, we are not done here. Assume for that someone managed to run a sniffer on your network and is capturing all your HTTP traffic:
+Still, we are not done yet. Assume that someone managed to run a sniffer on your network and is capturing all your HTTP traffic:
 
 ```shell
 [josevnz@dmaf5 home_nmap]$ tshark -i eno1 -Px -Y http
@@ -1084,9 +1088,9 @@ Capturing on 'eno1'
 00d0  22 7d                                             "}
 ```
 
-We can protect our traffic by encrypting it using [HTTPS](https://en.wikipedia.org/wiki/HTTPS).
+We can protect our traffic by encrypting it using [Hypertext Transfer Protocol Secure (HTTPS)](https://en.wikipedia.org/wiki/HTTPS).
 
-#### Creating the SSL certificates
+#### Creating the Secure Socket Layer (SSL) certificates
 Let me show you real quick [how you can install a self-signed server certificate](https://github.com/rob-blackbourn/ssl-certs) on Fedora using [Cloudflare cfssl](https://github.com/cloudflare/cfssl) . First let's install the tools:
 
 ```shell
@@ -1313,9 +1317,9 @@ Our application setup is now completed.
 
 We covered many topics and went from a very simple XML parser to a self documenting web service, not bad for a single session. You should know about the following now:
 
-* Parsing of NMAP XML results file, and enrich it with security advisories from NIST
-* Allowed NMAP to figure out the details of our local network by providing a proper target automatically
-* Played with NMAP options to make our local network scan faster
+* Parsing of Nmap XML results file, and enrich it with security advisories from NIST
+* Allowed Nmap to figure out the details of our local network by providing a proper target automatically
+* Played with Nmap options to make our local network scan faster
 * What is pivoting and how you can use it to bypass firewall protections with the help of SSH and tcpproxy
 * Wrote a REST-API on top of our original CLI script and secured it with SSL and Basic authentication
 * Added authorization to a web service using an API key
@@ -1324,10 +1328,10 @@ We covered many topics and went from a very simple XML parser to a self document
 
 What else you could learn?. Here are some final pointers:
 
-* Check the official NMAP documentation [learn](https://nmap.org/docs.html):
+* Check the official Nmap documentation [documentation](https://nmap.org/docs.html):
 * The [OS fingerprinting](https://nmap.org/book/osdetect.html) is fascinating. Figuring out what exactly runs behind a port is an art and a moving target.
 * Integration with other great [penetration testing](https://en.wikipedia.org/wiki/Penetration_test) tools like [Metasploit](https://github.com/rapid7/metasploit-framework), which you guessed, [can also be scripted in Ruby](https://www.offensive-security.com/metasploit-unleashed/custom-scripting/)!
-* Also, as a bonus you have my code that can install this tutorial with [pip](https://pip.pypa.io/en/stable/) and can run some unit tests with [unittest](https://docs.python.org/3/library/unittest.html). I welcome pull requests and suggestions.
+* Also, as a bonus you have my code that can be installed using [pip](https://pip.pypa.io/en/stable/) and can run some unit tests with [unittest](https://docs.python.org/3/library/unittest.html). I welcome pull requests and suggestions.
 
 Feel free to reach out with your comments, 
-bug-reports on the GitHub repository for this project, I hope you enjoy it using it as much I enjoyed writting it.
+bug-reports on the GitHub repository for this project, I hope you enjoy it using it as much I enjoyed writing it.
