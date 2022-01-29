@@ -8,13 +8,11 @@ It can also be used to bypass weak protections, to find hidden or mis-configured
 
 ## What you will learn from this article
 
-You can make Nmap easier to use by wrapping it with Python or other scripting language; This will become a time saver if you use it for common or repetitive tasks or if you want to be less overwhelmed by the huge amount of options than this tool has to your disposal.
+We will cover the following to illustrate how you can enhance Nmap with Python:
 
-We will cover the following:
-
-* How to write a small script that can scan all the hosts on the local network, making sure it runs with the proper privileges to identify the remote operating system
-* Enhance Nmap by correlating the CPE identifiers found during the service fingerprinting with security advisories from a public third party service.
-* Convert our CLI scripts into a webservice that can be called from any machine in the local network. Will add some basic security.
+* Write a small scripts that can scan all the hosts on the local network, making sure it runs with the proper privileges.
+* Enhance Nmap by correlating services with security advisories.
+* Convert our scripts into a webservice. Will add basic security.
 
 ## Things you should know and do before starting
 
