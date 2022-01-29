@@ -1206,13 +1206,13 @@ Now we create an intermediate certificate (intermediate-ca.json) that will expir
 }
 ```
 
-And let's create it:
+The command to do it:
 ```shell
 cfssl gencert -initca intermediate-ca.json | cfssljson -bare intermediate_ca
 cfssl sign -ca ca.pem -ca-key ca-key.pem -config cfssl.json -profile intermediate_ca intermediate_ca.csr | cfssljson -bare intermediate_ca
 ```
 
-Now we are ready for the good stuff, creating the host certificates!; 
+Nex step is to create the host certificates; 
 you will need to put your fully qualified host name (``hostname -f``) on the host-1.json file and some software also expect the IP address (``ip address|grep inet``), we will do both:
 ```json
 {
@@ -1240,14 +1240,20 @@ you will need to put your fully qualified host name (``hostname -f``) on the hos
 }
 ```
 
-You can create 3 certificate types: client, server and peer. Will use only one but showing this for completeness:
+You can create 3 certificate types: 
+* client
+* server 
+* peer 
+ 
+Will use only server certificate, but will create the 3:
+
 ```shell
 cfssl gencert -ca intermediate_ca.pem -ca-key intermediate_ca-key.pem -config cfssl.json -profile=peer host-1.json| cfssljson -bare host-1-peer  # Peer
 cfssl gencert -ca intermediate_ca.pem -ca-key intermediate_ca-key.pem -config cfssl.json -profile=server host-1.json | cfssljson -bare host-1-server  # Server
 cfssl gencert -ca intermediate_ca.pem -ca-key intermediate_ca-key.pem -config cfssl.json -profile=client host-1.json | cfssljson -bare host-1-client  # Client
 ```
 
-We are very close now, let's install the intermediate certificate into the proper location so the clients on dmaf5 do not complain about the self-signed certificate:
+We are very close now, install the intermediate certificate into the proper location so the clients on dmaf5 do not complain about the self-signed certificate:
 
 ```shell
 # The path below is for Fedora, please check your OS documentation to find the right path for you
@@ -1311,7 +1317,7 @@ josevnz@raspberrypi:~$ curl 'https://dmaf5.home:8443/local_networks' --header 'a
 ["192.168.1.0/24"]
 ```
 
-Our application setup is now completed.
+Our application setup is now complete.
 
 # What did we learn?
 
