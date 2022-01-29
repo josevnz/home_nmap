@@ -313,7 +313,7 @@ class NDISHtml:
         return self.parsed_results
 ```
 
-Then we correlate the Nmap CPES in the results with each one of the advisories:
+Then we correlate the Nmap CPES in the results with each one of the advisories, if any:
 
 ```python
 from typing import Any
@@ -1315,21 +1315,21 @@ Our application setup is now completed.
 
 # What did we learn?
 
-We covered many topics and went from a very simple XML parser to a self documenting web service, not bad for a single session. You should know about the following now:
+We covered many topics and went from a very simple XML parser to a self documenting web service, not bad for a single session; you should know about the following now:
 
-* Parsing of Nmap XML results file, and enrich it with security advisories from NIST
-* Allowed Nmap to figure out the details of our local network by providing a proper target automatically
-* Played with Nmap options to make our local network scan faster
-* What is pivoting and how you can use it to bypass firewall protections with the help of SSH and tcpproxy
-* Wrote a REST-API on top of our original CLI script and secured it with SSL and Basic authentication
-* Added authorization to a web service using an API key
-* Used tshark to demonstrate how HTTP traffic can be captured, showing the data payload
-* Added encryption to a web service, by creating self-signed certificates
+* Parse Nmap XML results file, and enrich it with security advisories from NIST
+* Enhance Nmap by mixing it with other scripts to automate its execution
+* Apply Nmap options to make our local network scan faster
+* Know what is pivoting and how you can use it to bypass firewall protections with the help of SSH and tcpproxy
+* Write a REST-API on top of our original CLI script and secured it with SSL and Basic authentication
+* Add authorization to a web service using an API key
+* Use tshark to demonstrate how HTTP traffic can be captured, show the data payload
+* Add encryption to a web service, by creating self-signed certificates
 
-What else you could learn?. Here are some final pointers:
+And what else you could learn?. Here are some final suggestions:
 
-* Check the official Nmap documentation [documentation](https://nmap.org/docs.html):
-* The [OS fingerprinting](https://nmap.org/book/osdetect.html) is fascinating. Figuring out what exactly runs behind a port is an art and a moving target.
+* Check the official Nmap [documentation](https://nmap.org/docs.html):
+* The [Operating system fingerprinting](https://nmap.org/book/osdetect.html) is fascinating. Figuring out what exactly runs behind a port is an art and a moving target.
 * Integration with other great [penetration testing](https://en.wikipedia.org/wiki/Penetration_test) tools like [Metasploit](https://github.com/rapid7/metasploit-framework), which you guessed, [can also be scripted in Ruby](https://www.offensive-security.com/metasploit-unleashed/custom-scripting/)!
 * Also, as a bonus you have my code that can be installed using [pip](https://pip.pypa.io/en/stable/) and can run some unit tests with [unittest](https://docs.python.org/3/library/unittest.html). I welcome pull requests and suggestions.
 
