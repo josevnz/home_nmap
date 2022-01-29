@@ -12,7 +12,7 @@ The Nmap scanner can be run as a web service (after installation):
 uvicorn home_nmap.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-And on a different terminal:
+And on a different terminal (example testing with curl):
 ```shell
 curl --fail --silent http://127.0.0.1:8000/docs#
 ```
