@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
 ![](file://nmap_scan_rpt_noadvisories.png)
 
-If you notice, the 'Advisories' column is left completely empty. One thing I will show you to do is how you can use the [NIST cybersecurity website search engine](https://www.nist.gov/cybersecurity) to populate the missing advisories, by passing the CPE that have version information to avoid false positives.
+If you notice, the 'Advisories' column is left completely empty. Will use the [NIST cybersecurity website search engine](https://www.nist.gov/cybersecurity) to populate the missing advisories, by passing the CPE that have _version information_ to avoid false positives.
 
 We use [requests](https://github.com/psf/requests) to help us with the HTTP communication:
 
