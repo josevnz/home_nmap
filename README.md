@@ -62,7 +62,7 @@ uvicorn home_nmap.main:app \
 ```
 
 # Tutorial
-You can read the tutorial/README.md file from your terminal like this (without installing all the software):
+You can read the [tutorial/README.md](docs/README.md) file from your terminal like this (without installing all the software):
 
 ```shell
 python3 -m venv ~/virtualenv/home_nmap
