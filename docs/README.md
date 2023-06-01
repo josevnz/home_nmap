@@ -1,5 +1,7 @@
 # Enhancing Nmap with Python
 
+![](mazinger-z.png)
+
 Very few pieces of Open Source software generate [so much hype](https://nmap.org/movies/) than [Nmap](https://nmap.org/); it is one of those tools that packs so many useful features that it can help you to make your systems more secure by just running it with a few flags.
 
 > Nmap ("Network Mapper") is a free and open source (license) utility for network discovery and security auditing. Many systems and network administrators also find it useful for tasks such as network inventory, managing service upgrade schedules, and monitoring host or service uptime.
